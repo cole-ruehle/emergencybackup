@@ -77,7 +77,9 @@ TrailLink helps urban hikers discover and plan hiking routes that are accessible
 
 - **[User Flow](USER_FLOW.md)** - Complete user journey and interaction patterns
 - **[Visual Design Study](VISUAL_DESIGN_STUDY.md)** - Design philosophy and aesthetic choices
-- **[App Demo Video (YouTube)](https://youtu.be/Ajy91kw-1qQ)** — Video demonstration of the application  
+- **[Design Document](DESIGN_DOCUMENT.md)** - How my design evolved throughout the project
+- **[Reflection](REFLECTION.md)** - Personal reflection on the development process
+- **[App Demo Video (YouTube)](https://youtu.be/HjJgIP67zXQ)** — Video demonstration of the application  
   *(Hosted on YouTube because the file was too large for GitHub)*
 
 ## 🏗️ Architecture
