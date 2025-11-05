@@ -1,7 +1,8 @@
 // API service for TrailLink backend
 // Version 1.0.0 - Updated with full authentication and social features
 
-const API_BASE_URL = 'http://localhost:8000/api' // Updated base URL
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
+const API_BASE_URL = API_BASE // Maintain backward compatibility
 
 export const api = {
   // ==================== User Management ====================
