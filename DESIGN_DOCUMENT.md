@@ -1,78 +1,82 @@
 
-# How My Design Evolved: A Personal Journey Through TrailLink
+# Final Design Evolution and Comparison
 
-Looking back at this project, I realize how much my understanding of concept design has changed. This document tells the story of how TrailLink evolved from my initial, overly ambitious design in Assignment 2 to what it is now—a much simpler, more focused system that actually works.
+This document concisely summarizes the progression of my design from the initial concept (Assignment 2) and visual design (Assignment 4B) through to the final system architecture implemented in TrailLink. It highlights the significant shifts in concept modeling, user flow, and technical direction, with clearly organized sections and bullet points for clarity.
 
 ---
 
 ## Repository Configuration
 
+<!-- UPDATE THIS URL when moving this file to a different repository -->
 **Backend Repository Base URL:** `https://github.com/cole-ruehle/concept_backend`
+
+> **Note:** When this document is moved to a new repository (e.g., a portfolio or documentation repo), simply update the above URL to point back to the TrailLink backend repository. All links below will reference this base.
 
 ---
 
 ## Table of Contents
 
-- [How My Design Evolved: A Personal Journey Through TrailLink](#how-my-design-evolved-a-personal-journey-through-traillink)
+- [Final Design Evolution and Comparison](#final-design-evolution-and-comparison)
   - [Repository Configuration](#repository-configuration)
   - [Table of Contents](#table-of-contents)
-  - [Where I Started](#where-i-started)
-  - [The Concepts I Abandoned (And Why)](#the-concepts-i-abandoned-and-why)
-    - [What I Originally Built](#what-i-originally-built)
-    - [The Concepts I Deprecated](#the-concepts-i-deprecated)
-    - [What I Have Now](#what-i-have-now)
-    - [Why I Made This Dramatic Change](#why-i-made-this-dramatic-change)
-  - [What Changed Since Assignment 2](#what-changed-since-assignment-2)
-  - [Improvements I Made After Assignment 4B](#improvements-i-made-after-assignment-4b)
-  - [My Core Design Philosophy](#my-core-design-philosophy)
-  - [The Big Architectural Decisions I Made](#the-big-architectural-decisions-i-made)
-  - [Before and After: A Comparison](#before-and-after-a-comparison)
-  - [Why I Made These Changes](#why-i-made-these-changes)
-  - [My Final Concept Specifications](#my-final-concept-specifications)
+  - [Overview](#overview)
+  - [Concept Trace](#concept-trace)
+    - [Evolution Timeline](#evolution-timeline)
+    - [Deprecated Concepts (October 2025)](#deprecated-concepts-october-2025)
+    - [Current Concept Architecture](#current-concept-architecture)
+    - [Why This Change?](#why-this-change)
+  - [Key Changes Since Assignment 2](#key-changes-since-assignment-2)
+  - [Refinements After Assignment 4B](#refinements-after-assignment-4b)
+  - [Central User Flow and Concept Model](#central-user-flow-and-concept-model)
+  - [Major Architectural Decisions](#major-architectural-decisions)
+  - [Summary Table: Before and After](#summary-table-before-and-after)
+  - [Design Rationale](#design-rationale)
+  - [Current Concept Specifications](#current-concept-specifications)
     - [1. LLMRoutePlanner](#1-llmrouteplanner)
     - [2. User (Authentication)](#2-user-authentication)
     - [3. Profile](#3-profile)
     - [4. UserHistory](#4-userhistory)
   - [Additional Documentation](#additional-documentation)
-  - [How to Update Links](#how-to-update-links)
 
 ---
 
-## Where I Started
+## Overview
 
-When I first started this project, I was really struggling with concept design. I realize now that I took on way too much in my original specification. My initial concepts were overly complex and unfocused, which made them incredibly difficult to build, test, and integrate when it came time for Assignment 4.
+My design process for TrailLink underwent substantial revision after experiencing challenges with my initial concepts and ambiguous flows. This document outlines:
 
-I had to seek guidance during office hours to strengthen my approach, and that's when I started to understand what a "concept" actually means. The most important breakthrough for me was creating the LLM route planner—it was my first solid attempt at a proper concept, and it ended up bringing together so much of my website's functionality in one place.
+- How my approach shifted from a loosely defined, overly complex model to a focused, concept-driven design
+- How user interactions were clarified into a "central dogma" of route state updates
+- Incremental changes made during and after Assignment 4B to improve modularity, security, and extensibility
 
 ---
 
-## The Concepts I Abandoned (And Why)
+## Concept Trace
 
-In November 2025, I made a really big decision: I deleted over 2,480 lines of code and threw out 4 specialized routing concepts that I'd been working on. It felt drastic at the time, but it was the right call. I replaced all of them with a single LLM-powered natural language interface that does everything the old system did, but better.
+The TrailLink backend underwent a major architectural simplification in November 2025, removing over 2,480 lines of code and 4 specialized routing concepts in favor of a single, LLM-powered natural language interface.
 
-### What I Originally Built
-
-When I started in October 2025, I had this really complicated architecture with four separate routing concepts:
+### Evolution Timeline
 
 ```
-October 2025 (My Initial Design)
+October 2025 (Initial Design - Assignment 2)
     ↓
-├── ConstraintMonitor          → Eventually deleted
-├── DynamicExitPlanner         → Eventually deleted
-├── ExternalRoutingEngine      → Eventually deleted  
-└── TransitRoutePlanner        → Eventually deleted
+├── ConstraintMonitor          → ❌ Deprecated
+├── DynamicExitPlanner         → ❌ Deprecated  
+├── ExternalRoutingEngine      → ❌ Deprecated
+└── TransitRoutePlanner        → ❌ Deprecated
     ↓
-November 2025 (After I Simplified Everything)
+November 2025 (LLM-Based Architecture)
     ↓
-├── LLMRoutePlanner           → This replaced all 4 concepts above
-├── User                      → For authentication
-├── Profile                   → For public profiles
-└── UserHistory               → For tracking activities
+├── LLMRoutePlanner           → ✅ Current (replaces all 4 above)
+├── User                      → ✅ Current (authentication)
+├── Profile                   → ✅ Current (public profiles)
+└── UserHistory               → ✅ Current (activity tracking)
 ```
 
-### The Concepts I Deprecated
+### Deprecated Concepts (October 2025)
 
-Looking back at my deprecation log ([DEPRECATED_CONCEPTS.md]({BASE_URL}/blob/main/DEPRECATED_CONCEPTS.md)), I got rid of these four concepts:
+**Full Deprecation Log:** [DEPRECATED_CONCEPTS.md](https://github.com/cole-ruehle/concept_backend/blob/main/DEPRECATED_CONCEPTS.md)
+
+Four specialized routing concepts were removed:
 
 | Concept | Purpose | Replacement | Lines Removed |
 |---------|---------|-------------|---------------|
@@ -81,67 +85,67 @@ Looking back at my deprecation log ([DEPRECATED_CONCEPTS.md]({BASE_URL}/blob/mai
 | **ExternalRoutingEngine** | Integration with mapping services | Service layer (GoogleMapsClient) | ~950 |
 | **TransitRoutePlanner** | Multi-modal route planning | LLMRoutePlanner (natural language) | ~500 |
 
-If you're curious about what these looked like originally, I saved the early specs:
-- [ConstraintMonitor Spec]({BASE_URL}/blob/main/design/concepts/HikingApp/ConstraintMonitor.md)
-- [DynamicExitPlanner Spec]({BASE_URL}/blob/main/design/concepts/HikingApp/DynamicExitPlanner.md)
-- [ExternalRoutingEngine Spec]({BASE_URL}/blob/main/design/concepts/HikingApp/ExternalRoutingEngine.md)
-- [TransitRoutePlanner Spec]({BASE_URL}/blob/main/design/concepts/HikingApp/TransitRoutePlanner.md)
+**Early Specification Snapshots:**
+- [ConstraintMonitor Spec](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/ConstraintMonitor.md)
+- [DynamicExitPlanner Spec](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/DynamicExitPlanner.md)
+- [ExternalRoutingEngine Spec](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/ExternalRoutingEngine.md)
+- [TransitRoutePlanner Spec](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/TransitRoutePlanner.md)
 
-I also have development history showing how I iterated on these:
-- [Early Implementation Discussions]({BASE_URL}/tree/main/context/design/concepts/HikingApp/implementation.md) - 21 snapshots of me trying to make this work
-- [LikertSurvey Concept Development]({BASE_URL}/tree/main/context/design/concepts/LikertSurvey) - Some early experimentation
+**Context Snapshots (Development History):**
+- [Early Implementation Discussions](https://github.com/cole-ruehle/concept_backend/tree/main/context/design/concepts/HikingApp/implementation.md) - 21 snapshots showing iterative development
+- [LikertSurvey Concept Development](https://github.com/cole-ruehle/concept_backend/tree/main/context/design/concepts/LikertSurvey) - Early concept experimentation
 
-### What I Have Now
+### Current Concept Architecture
 
-After all that simplification, I ended up with just four core concepts (see [My Final Concept Specifications](#my-final-concept-specifications) below for details):
+**Core Concepts** (See [Current Concept Specifications](#current-concept-specifications) below):
 
-1. **LLMRoutePlanner** - This is the one I'm most proud of
-   - Handles all routing scenarios through natural language
-   - Replaces all 4 of my old specialized concepts
-   - [Specification]({BASE_URL}/blob/main/design/concepts/HikingApp/LLMRoutePlanner.md)
-   - [Implementation]({BASE_URL}/blob/main/src/concepts/LLMRoutePlanner/LLMRoutePlannerConcept.ts)
+1. **LLMRoutePlanner** - Natural language route planning
+   - Handles all routing scenarios via single natural language interface
+   - Replaces 4 specialized concepts
+   - [Specification](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/LLMRoutePlanner.md)
+   - [Implementation](https://github.com/cole-ruehle/concept_backend/blob/main/src/concepts/LLMRoutePlanner/LLMRoutePlannerConcept.ts)
 
-2. **User** - For authentication and sessions
+2. **User** - Authentication and session management
    - Register, login, logout, session validation
-   - [Specification]({BASE_URL}/blob/main/design/concepts/HikingApp/User.md)
-   - [Implementation]({BASE_URL}/blob/main/src/concepts/HikingApp/User.ts)
+   - [Specification](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/User.md)
+   - [Implementation](https://github.com/cole-ruehle/concept_backend/blob/main/src/concepts/HikingApp/User.ts)
 
-3. **Profile** - For public user information
+3. **Profile** - Public user profiles
    - Display name, bio, preferences
-   - I learned to keep this separate from authentication
-   - [Specification]({BASE_URL}/blob/main/design/concepts/HikingApp/Profile.md)
-   - [Implementation]({BASE_URL}/blob/main/src/concepts/HikingApp/Profile.ts)
+   - Separate from authentication concerns
+   - [Specification](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/Profile.md)
+   - [Implementation](https://github.com/cole-ruehle/concept_backend/blob/main/src/concepts/HikingApp/Profile.ts)
 
-4. **UserHistory** - For tracking activities
+4. **UserHistory** - Activity and location tracking
    - Route history, location sharing, popular destinations
-   - [Specification]({BASE_URL}/blob/main/design/concepts/HikingApp/UserHistory.md)
-   - [Implementation]({BASE_URL}/blob/main/src/concepts/HikingApp/UserHistory.ts)
+   - [Specification](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/UserHistory.md)
+   - [Implementation](https://github.com/cole-ruehle/concept_backend/blob/main/src/concepts/HikingApp/UserHistory.ts)
 
-### Why I Made This Dramatic Change
+### Why This Change?
 
-Looking back at my original design, I can see so many problems:
-- It was way too **complex**: 4 different concepts with rigid action signatures and tons of synchronizations between them
-- It was **inflexible**: Every time I wanted to add a new routing feature, I had to create new actions, write new tests, and add more syncs
-- It was **over-engineered**: I had multiple concepts trying to do what an LLM could orchestrate naturally
-- The **UX was poor**: Users had to learn specific commands instead of just saying what they wanted in natural language
+**Problems with Original Design:**
+- ❌ **Complex**: 4 concepts with rigid action signatures and many synchronizations
+- ❌ **Inflexible**: Adding new routing features required new actions, tests, and syncs
+- ❌ **Over-engineered**: Multiple concepts doing what an LLM could orchestrate naturally
+- ❌ **Poor UX**: Users had to learn specific commands instead of natural language
 
-The new design is so much better:
-- **Simple**: One natural language interface for everything
-- **Flexible**: I can add new features just by updating prompts, not changing code
-- **User-friendly**: Users can say "Find trails near Boston" instead of filling out rigid API parameters
-- **Maintainable**: 2,480 fewer lines of code to maintain and test
+**Benefits of New Design:**
+- ✅ **Simple**: Single natural language interface for all routing
+- ✅ **Flexible**: New features added via prompt updates, not code changes
+- ✅ **User-friendly**: "Find trails near Boston" vs. rigid API parameters
+- ✅ **Maintainable**: 2,480 fewer lines to maintain and test
 
-Here's a concrete example of how much simpler this became:
+**Example Transformation:**
 
 ```typescript
-// ❌ What I had before: Multiple endpoints with rigid parameters
+// ❌ OLD: Multiple concepts, rigid parameters
 POST /api/transitRoutePlanner/planRoute
 { startLocation, endLocation, transitModes, maxWalkingDistance }
 
 POST /api/dynamicExitPlanner/planExit
 { currentLocation, plannedRoute, urgency }
 
-// ✅ What I have now: One endpoint, just say what you want
+// ✅ NEW: Single endpoint, natural language
 POST /api/llmRoutePlanner/planRoute
 { 
   query: "Find hiking trails near Boston accessible by MBTA",
@@ -151,48 +155,48 @@ POST /api/llmRoutePlanner/planRoute
 
 ---
 
-## What Changed Since Assignment 2
+## Key Changes Since Assignment 2
 
-- **I learned what a concept actually is:**  
-  My initial designs were a mess of features that weren't really "concepts" at all. This led to messy dependencies and confusing code structure. Now I have clear boundaries between concepts like routes, users, profiles, and history.
+- **From Ad-hoc Concepts to Clear Models:**  
+  Initial designs were muddled with features that were not true "concepts", leading to messy dependencies and code structure. The new model enforces strict boundaries between concepts (routes, users, profiles, history).
 
-- **I simplified the user flow:**  
-  Early on, I was trying to do too much in one step. My final design separates state transitions and makes each action update the current route incrementally, which is much cleaner.
+- **Simplified User Flow:**  
+  Early user flows tried to do too much in one step. The final design separates state transitions and makes each action update the current route incrementally.
 
-- **I started using context injection instead of global imports:**  
-  Instead of importing or sharing state between modules (which got messy fast), I now bundle user actions as context for the LLM, which returns the updated route or response.
+- **Context Injection Instead of Global Imports:**  
+  Instead of importing or sharing state between modules, user actions are bundled as context for the LLM, which then returns the updated route or response.
 
-- **I made security explicit with session tokens:**  
-  All authentication and user actions now require a session token. My earlier approach was really insecure, and I'm glad I fixed this.
-
----
-
-## Improvements I Made After Assignment 4B
-
-- **I separated Users from Profiles:**  
-  I realized that Users (for authentication) should be distinct from user profiles (for public display). This made access control and data flow so much clearer.
-
-- **I added Live Hiking Mode:**  
-  Inspired by examples we looked at in class, I integrated a "Live Hiking" mode with user location sharing. The location updates power both real-time displays and historical trail popularity data.
-
-- **I started tracking everything in User History:**  
-  Now all hikes and locations are stored, which lets users see their hiking history and helps the app show popular destinations to others.
-
-- **I switched to the request module:**  
-  The backend now uses the request module for handling external API calls, which is safer and cleaner. This enforced better separation of concerns.
+- **Explicit Security via Session Tokens:**  
+  Authentication and all user actions now require a session token, removing prior insecure patterns.
 
 ---
 
-## My Core Design Philosophy
+## Refinements After Assignment 4B
 
-**The "Central Dogma" I Developed:**  
-I came up with this idea that the user always has a "current route" (which might be empty at first). Every important user action—starting a route, modifying it, adding a stop, planning an exit, etc.—works the same way:
+- **User-Profile Separation:**  
+  Users (for authentication) are kept distinct from user profiles (for public display), clarifying access control and data flow.
 
-- It updates the current route, which is the single source of truth in the UI
-- It's issued as a discrete, atomic request to the backend/LLM
-- The LLM ingests the existing route and user intent, then responds with a new route object and an explanation
+- **Live Hiking Mode Added:**  
+  Inspired by course examples, a "Live Hiking" mode and user location sharing were integrated. Location updates power both real-time user displays and historical trail popularity.
 
-**Here's how the flow works:**
+- **Use of User History:**  
+  All hikes and locations are now stored, enabling users to see their hiking history and for the app to show popular destinations.
+
+- **Shift to Request Module:**  
+  The backend now uses the request module for safer and cleaner handling of external API calls, enforcing better separation of concerns.
+
+---
+
+## Central User Flow and Concept Model
+
+**The Central Dogma:**  
+At all times, the user maintains a "current route" (may be empty initially). All important user actions (start route, modify, add stop, exit, etc.):
+
+- Update the current route, which is the single source of truth in the UI
+- Are issued as discrete, atomic requests to the backend/LLM
+- Trigger the LLM to ingest the existing route and user intent and respond with a new route object and explanatory note
+
+**Diagram: Simplified User Flow**
 
 ```
    [User Action] 
@@ -208,25 +212,23 @@ I came up with this idea that the user always has a "current route" (which might
 
 ---
 
-## The Big Architectural Decisions I Made
+## Major Architectural Decisions
 
-- **Keeping concepts granular:**  
-  I made sure each major entity (User, Profile, Route, History, LiveSession) is modeled independently. This avoids the blurred boundaries I had in Assignment 2.
+- **Concept Granularity:**  
+  Each major entity (User, Profile, Route, History, LiveSession) is independently modeled, avoiding blurred boundaries seen in Assignment 2.
 
-- **No more "spaghetti imports":**  
-  My earlier attempts had imports everywhere, making everything depend on everything else. Now all information needed for each concept is explicitly injected.
+- **No Implicit Imports:**  
+  The new model avoids "spaghetti imports" that plagued earlier attempts. All information needed for each concept is explicitly injected.
 
-- **Making security a priority:**  
-  All backend interactions require session tokens. This closes the security holes my initial prototype had.
+- **Security as a First-Class Concern:**  
+  All backend interactions require session tokens, closing the security holes of the initial prototype.
 
-- **Decoupling frontend and backend:**  
-  Communication always happens through clear, versioned API calls (see my [API service module](src/api/api.js)).
+- **Front-end & Back-end Decoupling:**  
+  Communication is always via clear, versioned API calls (see [API service module](src/api/api.js)).
 
 ---
 
-## Before and After: A Comparison
-
-Looking at where I started versus where I ended up, the differences are pretty stark:
+## Summary Table: Before and After
 
 | Area                | Assignment 2           | Final Design                |
 |---------------------|-----------------------|-----------------------------|
@@ -239,52 +241,50 @@ Looking at where I started versus where I ended up, the differences are pretty s
 
 ---
 
-## Why I Made These Changes
+## Design Rationale
 
-Making all these changes really helped resolve the scalability, security, and usability issues I was running into with my earlier versions. By simplifying the user flow and strictly modeling each concept, I was able to iterate on things independently, make the backend more secure, and keep the frontend maintainable. 
-
-This also sets up TrailLink well for future extensions—like richer profiles or more live modes—because every concept and interaction is clearly defined and modular. I learned that a well-designed concept doesn't need to be tightly coupled to backend or frontend implementation details; it can stand independently, which gives you way more flexibility.
+Making these changes helped resolve many of the scalability, security, and usability issues encountered in my earlier versions. By simplifying the user flow and strictly modeling each concept, I was able to iterate independently, make the backend more secure, and keep the frontend maintainable. This also positions TrailLink well for future extensions (e.g., richer profiles, more live modes), since every concept and interaction is clearly defined and modular.
 
 ---
 
-## My Final Concept Specifications
+## Current Concept Specifications
 
-Here are the four concepts I ended up with. Each one follows the standard format we learned in class: purpose, principle, state, actions, and implementation notes.
+Below are the complete specifications for all active concepts in the TrailLink backend. Each concept follows the standard format: purpose, principle, state, actions, and implementation notes.
 
 ### 1. LLMRoutePlanner
 
-**What it does:** This enables natural language-based multi-modal route planning (transit + hiking) through LLM orchestration. This is the concept I'm most proud of.
+**Purpose:** Enable natural language-based multi-modal route planning (transit + hiking) through LLM orchestration.
 
-**Key features:**
-- Natural language query processing (like "Find trails near Boston accessible by MBTA")
-- Route creation and modification through a single interface
+**Key Features:**
+- Natural language query processing ("Find trails near Boston accessible by MBTA")
+- Route creation and modification via single interface
 - Emergency exit routing
 - Context-aware suggestions
 
-**Where to find more:**
-- [Full Specification]({BASE_URL}/blob/main/design/concepts/HikingApp/LLMRoutePlanner.md)
-- [Implementation]({BASE_URL}/blob/main/src/concepts/LLMRoutePlanner/LLMRoutePlannerConcept.ts)
-- [API Documentation]({BASE_URL}/blob/main/API_SPECIFICATION.md#llm-route-planner)
+**Links:**
+- [Full Specification](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/LLMRoutePlanner.md)
+- [Implementation](https://github.com/cole-ruehle/concept_backend/blob/main/src/concepts/LLMRoutePlanner/LLMRoutePlannerConcept.ts)
+- [API Documentation](https://github.com/cole-ruehle/concept_backend/blob/main/API_SPECIFICATION.md#llm-route-planner)
 
-**Main action:**
+**Core Actions:**
 - `planRoute(query, userLocation, preferences?, currentRoute?)` → RouteResponse
 
 ### 2. User (Authentication)
 
-**What it does:** This lets users maintain authenticated state across multiple requests without repeatedly providing credentials.
+**Purpose:** Enable users to maintain authenticated state across multiple requests without repeatedly providing credentials.
 
-**Key features:**
+**Key Features:**
 - User registration with password hashing
 - Session-based authentication with secure tokens
 - Password management
 - Automatic session expiration
 
-**Where to find more:**
-- [Full Specification]({BASE_URL}/blob/main/design/concepts/HikingApp/User.md)
-- [Implementation]({BASE_URL}/blob/main/src/concepts/HikingApp/User.ts)
-- [API Documentation]({BASE_URL}/blob/main/API_SPECIFICATION.md#user-authentication)
+**Links:**
+- [Full Specification](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/User.md)
+- [Implementation](https://github.com/cole-ruehle/concept_backend/blob/main/src/concepts/HikingApp/User.ts)
+- [API Documentation](https://github.com/cole-ruehle/concept_backend/blob/main/API_SPECIFICATION.md#user-authentication)
 
-**Main actions:**
+**Core Actions:**
 - `register(username, password, email)` → userId
 - `login(username, password)` → sessionToken
 - `authenticate(sessionToken)` → userId
@@ -292,20 +292,20 @@ Here are the four concepts I ended up with. Each one follows the standard format
 
 ### 3. Profile
 
-**What it does:** This provides public-facing user profiles that are separate from authentication concerns. Keeping this separate from User was an important design decision I made.
+**Purpose:** Provide public-facing user profiles separate from authentication concerns.
 
-**Key features:**
+**Key Features:**
 - Display names, bios, and preferences
 - Profile picture support
 - Hiking statistics and achievements
 - Privacy-focused (separate from User concept)
 
-**Where to find more:**
-- [Full Specification]({BASE_URL}/blob/main/design/concepts/HikingApp/Profile.md)
-- [Implementation]({BASE_URL}/blob/main/src/concepts/HikingApp/Profile.ts)
-- [API Documentation]({BASE_URL}/blob/main/API_SPECIFICATION.md#profile-management)
+**Links:**
+- [Full Specification](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/Profile.md)
+- [Implementation](https://github.com/cole-ruehle/concept_backend/blob/main/src/concepts/HikingApp/Profile.ts)
+- [API Documentation](https://github.com/cole-ruehle/concept_backend/blob/main/API_SPECIFICATION.md#profile-management)
 
-**Main actions:**
+**Core Actions:**
 - `createProfile(userId, displayName, bio?)` → profileId
 - `getProfile(userId)` → ProfileData
 - `updateProfile(userId, updates)` → success
@@ -313,20 +313,20 @@ Here are the four concepts I ended up with. Each one follows the standard format
 
 ### 4. UserHistory
 
-**What it does:** This tracks user hiking activities, location history, and enables discovery of popular destinations.
+**Purpose:** Track user hiking activities, location history, and enable discovery of popular destinations.
 
-**Key features:**
+**Key Features:**
 - Hike completion tracking
 - Real-time location sharing
 - Historical trail popularity data
 - Personal hiking statistics
 
-**Where to find more:**
-- [Full Specification]({BASE_URL}/blob/main/design/concepts/HikingApp/UserHistory.md)
-- [Implementation]({BASE_URL}/blob/main/src/concepts/HikingApp/UserHistory.ts)
-- [API Documentation]({BASE_URL}/blob/main/API_SPECIFICATION.md#user-history)
+**Links:**
+- [Full Specification](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/UserHistory.md)
+- [Implementation](https://github.com/cole-ruehle/concept_backend/blob/main/src/concepts/HikingApp/UserHistory.ts)
+- [API Documentation](https://github.com/cole-ruehle/concept_backend/blob/main/API_SPECIFICATION.md#user-history)
 
-**Main actions:**
+**Core Actions:**
 - `recordHike(userId, route, completedAt)` → hikeId
 - `updateLocation(userId, location, timestamp)` → success
 - `getHikingHistory(userId, limit?)` → HikeData[]
@@ -336,31 +336,15 @@ Here are the four concepts I ended up with. Each one follows the standard format
 
 ## Additional Documentation
 
-If you want to see more implementation details, API specifications, and testing documentation, check out:
+For complete implementation details, API specifications, and testing documentation, see:
 
-- [API Specification]({BASE_URL}/blob/main/API_SPECIFICATION.md) - Complete REST API documentation
-- [Implementation Summary]({BASE_URL}/blob/main/IMPLEMENTATION_SUMMARY.md) - Technical implementation details
-- [Synchronizations]({BASE_URL}/blob/main/design/concepts/HikingApp/synchronizations.md) - Concept synchronization logic
-- [Testing Documentation]({BASE_URL}/blob/main/design/concepts/HikingApp/testing.md) - Test coverage and strategies
-- [README]({BASE_URL}/blob/main/README.md) - Setup and deployment instructions
+- [API Specification](https://github.com/cole-ruehle/concept_backend/blob/main/API_SPECIFICATION.md) - Complete REST API documentation
+- [Implementation Summary](https://github.com/cole-ruehle/concept_backend/blob/main/IMPLEMENTATION_SUMMARY.md) - Technical implementation details
+- [Synchronizations](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/synchronizations.md) - Concept synchronization logic
+- [Testing Documentation](https://github.com/cole-ruehle/concept_backend/blob/main/design/concepts/HikingApp/testing.md) - Test coverage and strategies
+- [README](https://github.com/cole-ruehle/concept_backend/blob/main/README.md) - Setup and deployment instructions
 
 ---
 
-## How to Update Links
 
-If you're moving this document to a different repository, here's what to do:
-
-1. Update the **Repository Configuration** section at the top of this document
-2. Replace the `{BASE_URL}` placeholder with your actual GitHub repository URL
-3. All the links will automatically point back to the correct files in the backend repository
-
-**Example:**
-```markdown
-<!-- Change from: -->
-**Backend Repository Base URL:** `https://github.com/YOUR_USERNAME/concept_backend`
-
-<!-- To: -->
-**Backend Repository Base URL:** `https://github.com/cole-school/traillink-backend`
-```
-
-Then use find-and-replace: `{BASE_URL}` → `https://github.com/cole-school/traillink-backend`
+This maintains all the references to the original backend code, specifications, and context files.
