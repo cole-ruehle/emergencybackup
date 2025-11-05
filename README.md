@@ -1,6 +1,8 @@
-# TrailLink - LLM-Powered Hiking Route Planning
+# TrailLink - LLM-Powered Hiking Route Planning with Social Discovery
 
-A Vue.js application that uses Google Maps API and an LLM backend to plan transit-accessible hiking routes for urban hikers. The app combines public transportation with hiking trails to create accessible outdoor experiences.
+**Version 2.0.0** - Now with Authentication, Live Hiking, and Social Features!
+
+A Vue.js application that uses Google Maps API and an LLM backend to plan transit-accessible hiking routes for urban hikers. The app combines public transportation with hiking trails to create accessible outdoor experiences, with **live location sharing and nearby hiker discovery**.
 
 ## 🎯 Overview
 
@@ -8,12 +10,29 @@ TrailLink helps urban hikers discover and plan hiking routes that are accessible
 
 1. **Google Maps API** for route planning, directions, and map visualization
 2. **LLM Backend** to understand natural language queries and orchestrate complex route modifications
-3. **Clean, Professional UI** inspired by Squarespace and Audi design principles
+3. **Authentication System** for user accounts and personalized experiences
+4. **Live Hiking Mode** with real-time location sharing
+5. **Social Discovery** to find and connect with nearby active hikers
+6. **Community Feed** showing recent activities and popular routes
+7. **Clean, Professional UI** inspired by Squarespace and Audi design principles
+
+### 🆕 New in v2.0
+- ✨ **Full Authentication** - Register, login, session management
+- 🥾 **Live Hiking Mode** - Start/end hikes with real-time tracking
+- 👥 **Nearby Hikers** - Discover active hikers within 5km
+- 🌐 **Community Feed** - See recent activities and trending routes
+- 📍 **Privacy Controls** - Opt-in location sharing with clear indicators
+- 🚨 **Emergency Exit** - Quick route home in emergencies
+- 💾 **Session Persistence** - Stay logged in for 7 days
 
 ### Key Features
 - Plan hiking routes accessible by public transit
 - Natural language route modifications ("Add a scenic stop", "Exit now")
 - Real-time Google Maps integration
+- Live location sharing during hikes (opt-in)
+- Find nearby active hikers
+- See community hiking activity
+- Emergency exit planning
 - Clean, trustworthy interface design
 - Context-aware route suggestions
 

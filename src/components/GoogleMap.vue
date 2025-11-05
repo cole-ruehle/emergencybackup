@@ -110,7 +110,9 @@ const initMap = async () => {
 const renderRoute = (route) => {
   if (!route || !map.value) return
   
-  console.log('Rendering route:', route)
+  console.log('🗺️ Rendering route:', route)
+  console.log('Route segments:', route.segments)
+  console.log('Route waypoints:', route.waypoints)
   
   // Clear existing markers and polylines
   if (window.routeMarkers) {
@@ -162,7 +164,7 @@ const renderRoute = (route) => {
   }
   
   // Add waypoint markers
-  if (route.waypoints) {
+  if (route.waypoints && Array.isArray(route.waypoints)) {
     route.waypoints.forEach((waypoint, index) => {
       const waypointMarker = new window.google.maps.Marker({
         position: waypoint,
@@ -184,11 +186,18 @@ const renderRoute = (route) => {
   
   // Draw route segments
   if (route.segments && route.segments.length > 0) {
+    console.log('📍 Drawing segments...')
     let currentPosition = route.origin
+    let hasDrawnAnySegment = false
     
     route.segments.forEach((segment, index) => {
-      if (segment.waypoints && segment.waypoints.length > 0) {
+      console.log(`Segment ${index}:`, segment)
+      
+      // Check if segment has waypoints array with coordinates
+      if (segment.waypoints && Array.isArray(segment.waypoints) && segment.waypoints.length > 0) {
         const path = [currentPosition, ...segment.waypoints]
+        
+        console.log(`✅ Drawing segment ${index} with ${segment.waypoints.length} waypoints`)
         
         const polyline = new window.google.maps.Polyline({
           path: path,
@@ -200,12 +209,66 @@ const renderRoute = (route) => {
         })
         
         window.routePolylines.push(polyline)
+        hasDrawnAnySegment = true
         
         // Update current position to last waypoint
         currentPosition = segment.waypoints[segment.waypoints.length - 1]
+      } else {
+        console.warn(`⚠️ Segment ${index} has no waypoints array - skipping polyline`)
       }
     })
+    
+    // FALLBACK: If no segments were drawn, draw a simple line from origin to destination
+    if (!hasDrawnAnySegment && route.origin && route.destination) {
+      console.log('⚠️ No segment waypoints found - drawing simple line from origin to destination')
+      
+      // Build path from origin -> waypoints -> destination
+      const simplePath = [route.origin]
+      
+      if (route.waypoints && Array.isArray(route.waypoints)) {
+        simplePath.push(...route.waypoints)
+      }
+      
+      simplePath.push(route.destination)
+      
+      const fallbackPolyline = new window.google.maps.Polyline({
+        path: simplePath,
+        geodesic: true,
+        strokeColor: '#4285F4', // Default blue
+        strokeOpacity: 0.8,
+        strokeWeight: 4,
+        map: map.value
+      })
+      
+      window.routePolylines.push(fallbackPolyline)
+      console.log('✅ Fallback line drawn')
+    }
+  } else if (route.origin && route.destination) {
+    // No segments at all - just draw a simple line
+    console.log('⚠️ No segments in route - drawing simple line')
+    
+    const simplePath = [route.origin]
+    
+    if (route.waypoints && Array.isArray(route.waypoints)) {
+      simplePath.push(...route.waypoints)
+    }
+    
+    simplePath.push(route.destination)
+    
+    const simplePolyline = new window.google.maps.Polyline({
+      path: simplePath,
+      geodesic: true,
+      strokeColor: '#4285F4',
+      strokeOpacity: 0.8,
+      strokeWeight: 4,
+      map: map.value
+    })
+    
+    window.routePolylines.push(simplePolyline)
+    console.log('✅ Simple line drawn')
   }
+  
+  console.log(`Total polylines drawn: ${window.routePolylines.length}`)
   
   // Fit map to show all markers
   if (window.routeMarkers.length > 0) {

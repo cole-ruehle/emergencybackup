@@ -26,13 +26,38 @@
         <button class="close-nav" @click="closeMenu">×</button>
         <div class="nav-content">
           <h3>Menu</h3>
+          
+          <!-- Show user info if authenticated -->
+          <div v-if="authStore.isAuthenticated" class="user-info">
+            <div class="user-avatar">{{ displayName.charAt(0).toUpperCase() }}</div>
+            <div class="user-details">
+              <p class="user-name">{{ displayName }}</p>
+              <p class="user-email">{{ authStore.userProfile?.email }}</p>
+            </div>
+          </div>
+          
           <div class="nav-actions">
-            <button class="nav-button primary" @click="handleGetStarted">Get Started</button>
-            <button class="nav-button secondary" @click="handleSignIn">Sign In</button>
+            <!-- Show different buttons based on auth state -->
+            <template v-if="authStore.isAuthenticated">
+              <button class="nav-button primary" @click="handleGetStarted">Plan a Route</button>
+              <button class="nav-button secondary" @click="handleSignOut">Sign Out</button>
+            </template>
+            <template v-else>
+              <button class="nav-button primary" @click="handleGetStarted">Get Started</button>
+              <button class="nav-button secondary" @click="handleSignIn">Sign In</button>
+            </template>
           </div>
         </div>
       </nav>
     </div>
+    
+    <!-- Auth Modal -->
+    <AuthModal 
+      :show="showAuthModal"
+      :default-mode="authModalMode"
+      @close="showAuthModal = false"
+      @success="handleAuthSuccess"
+    />
     
     <!-- Main Content -->
     <main class="app-main">
@@ -47,6 +72,30 @@
       
       <!-- Action Buttons -->
       <ActionButtons />
+      
+      <!-- Live Hiking Mode (only show for authenticated users) -->
+      <LiveHikingMode
+        v-if="authStore.isAuthenticated"
+        :nearby-hikers-count="nearbyHikersCount"
+        @hike-started="handleHikeStarted"
+        @hike-ended="handleHikeEnded"
+        @emergency-exit="handleEmergencyExit"
+      />
+      
+      <!-- Nearby Hikers (only show when location sharing is enabled) -->
+      <NearbyHikers
+        v-if="authStore.isAuthenticated && authStore.visibilitySettings.showLiveLocation"
+        :user-location="appStore.userLocation"
+        :search-radius="5000"
+        @hiker-selected="handleHikerSelected"
+        @hikers-updated="handleHikersUpdated"
+      />
+      
+      <!-- Community Feed (always visible) -->
+      <CommunityFeed
+        :user-location="appStore.userLocation"
+        :radius="50000"
+      />
       
       <!-- Map Display -->
       <div v-if="appStore.currentRoute" class="map-section">
@@ -121,8 +170,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useAppStore } from './stores/appStore.js'
+import { useAuthStore } from './stores/authStore.js'
 import { api } from './api/api.js'
 import { formatTime } from './utils/helpers.js'
 
@@ -162,11 +212,36 @@ import RouteInputs from './components/RouteInputs.vue'
 import ActionButtons from './components/ActionButtons.vue'
 import GoogleMap from './components/GoogleMap.vue'
 import LoadingSpinner from './components/LoadingSpinner.vue'
+import AuthModal from './components/AuthModal.vue'
+import LiveHikingMode from './components/LiveHikingMode.vue'
+import NearbyHikers from './components/NearbyHikers.vue'
+import CommunityFeed from './components/CommunityFeed.vue'
 
 const appStore = useAppStore()
+const authStore = useAuthStore()
 
 const showMenu = ref(false)
+const showAuthModal = ref(false)
+const authModalMode = ref('login')
 const backendConnected = ref(false)
+const nearbyHikers = ref([])
+
+const displayName = computed(() => {
+  return authStore.profileData?.displayName || authStore.userProfile?.username || 'User'
+})
+
+const nearbyHikersCount = computed(() => {
+  return nearbyHikers.value.length
+})
+
+const handleHikersUpdated = (hikers) => {
+  nearbyHikers.value = hikers
+}
+
+const handleHikerSelected = (hiker) => {
+  console.log('Hiker selected:', hiker)
+  // TODO: Center map on hiker location or show hiker details
+}
 
 const toggleMenu = () => {
   showMenu.value = !showMenu.value
@@ -177,22 +252,63 @@ const closeMenu = () => {
 }
 
 const handleGetStarted = () => {
-  // Scroll to route inputs
-  const routeInputs = document.querySelector('.route-inputs')
-  if (routeInputs) {
-    routeInputs.scrollIntoView({ behavior: 'smooth' })
+  if (!authStore.isAuthenticated) {
+    // Show login modal
+    showAuthModal.value = true
+    authModalMode.value = 'register'
+    closeMenu()
+  } else {
+    // Scroll to route inputs
+    const routeInputs = document.querySelector('.route-inputs')
+    if (routeInputs) {
+      routeInputs.scrollIntoView({ behavior: 'smooth' })
+    }
+    closeMenu()
   }
-  closeMenu()
 }
 
 const handleSignIn = () => {
-  alert('Sign In functionality would be implemented here')
+  showAuthModal.value = true
+  authModalMode.value = 'login'
   closeMenu()
+}
+
+const handleSignOut = async () => {
+  await authStore.logout()
+  closeMenu()
+  appStore.setCurrentRoute(null)
+}
+
+const handleAuthSuccess = (data) => {
+  console.log('Authentication successful:', data)
+  // Optionally scroll to inputs after login
+  setTimeout(() => {
+    const routeInputs = document.querySelector('.route-inputs')
+    if (routeInputs) {
+      routeInputs.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, 500)
 }
 
 const handleLocationSelected = (location) => {
   appStore.setUserLocation(location)
   console.log('Location selected:', location)
+}
+
+const handleHikeStarted = (data) => {
+  console.log('Hike started:', data)
+  // TODO: Could record hike start to backend or show notification
+}
+
+const handleHikeEnded = (data) => {
+  console.log('Hike ended:', data)
+  // TODO: Record hike completion to backend via UserHistory API
+  // Could show completion modal with stats
+}
+
+const handleEmergencyExit = (data) => {
+  console.log('Emergency exit requested:', data)
+  // Emergency route planning is handled by LiveHikingMode component
 }
 
 // Check backend connection
@@ -204,7 +320,18 @@ const checkBackendConnection = async () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // Initialize authentication
+  const isAuthenticated = await authStore.initialize()
+  
+  if (!isAuthenticated) {
+    // Show login modal if not authenticated
+    setTimeout(() => {
+      showAuthModal.value = true
+      authModalMode.value = 'login'
+    }, 1000)
+  }
+  
   checkBackendConnection()
   
   // Check connection every 30 seconds
@@ -372,9 +499,57 @@ body {
 .nav-content h3 {
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.25rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-email {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nav-actions {

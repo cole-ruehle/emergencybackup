@@ -71,9 +71,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useAppStore } from '../stores/appStore.js'
+import { useAuthStore } from '../stores/authStore.js'
 import { api } from '../api/api.js'
 
 const appStore = useAppStore()
+const authStore = useAuthStore()
 
 const loading = ref(false)
 const notices = ref([])
@@ -83,6 +85,14 @@ const handleAction = async (action) => {
     loading.value = true
     appStore.setLoading(true)
     appStore.clearError()
+    
+    // Check authentication
+    if (!authStore.isAuthenticated) {
+      appStore.setError('Please sign in to use quick actions')
+      loading.value = false
+      appStore.setLoading(false)
+      return
+    }
     
     // Add action to recent buttons pressed
     appStore.addButtonPress(action)
@@ -116,8 +126,8 @@ const handleAction = async (action) => {
     
     const query = getActionQuery(action)
     
-    // Use the new planRoute method
-    const result = await appStore.planRoute(query)
+    // Use the new planRoute method with sessionToken
+    const result = await appStore.planRoute(query, authStore.sessionToken)
     
     // Handle successful response
     if (result.route) {

@@ -144,11 +144,16 @@ export const useAppStore = defineStore('app', () => {
     })
   }
   
-  // Plan route using LLM + Google Maps
-  const planRoute = async (query) => {
+  // Plan route using LLM + Google Maps (requires authentication)
+  const planRoute = async (query, sessionToken) => {
     try {
       setLoading(true)
       clearError()
+      
+      // Check authentication
+      if (!sessionToken) {
+        throw new Error('Authentication required. Please sign in to plan routes.')
+      }
       
       // Ensure we have a valid user location
       let location = userLocation.value
@@ -168,12 +173,13 @@ export const useAppStore = defineStore('app', () => {
       
       // Include current route context for modifications
       const currentRouteContext = currentRoute.value ? {
-        routeId: currentRoute.value.route_id,
-        routeName: currentRoute.value.name,
-        currentDestination: currentRoute.value.destination,
-        currentOrigin: currentRoute.value.origin,
-        currentSegments: currentRoute.value.segments,
-        currentWaypoints: currentRoute.value.waypoints
+        route_id: currentRoute.value.route_id,
+        name: currentRoute.value.name,
+        destination: currentRoute.value.destination,
+        origin: currentRoute.value.origin,
+        segments: currentRoute.value.segments,
+        waypoints: currentRoute.value.waypoints,
+        metrics: currentRoute.value.metrics
       } : null
       
       console.log('Sending request to backend:', { 
@@ -183,7 +189,7 @@ export const useAppStore = defineStore('app', () => {
         currentRoute: currentRouteContext
       })
       
-      const response = await api.planRoute(query, location, preferences, currentRouteContext)
+      const response = await api.planRoute(sessionToken, query, location, preferences, currentRouteContext)
       
       if (response.route) {
         setCurrentRoute(response.route)

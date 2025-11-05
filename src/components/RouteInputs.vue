@@ -97,9 +97,11 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { useAppStore } from '../stores/appStore.js'
+import { useAuthStore } from '../stores/authStore.js'
 import { api } from '../api/api.js'
 
 const appStore = useAppStore()
+const authStore = useAuthStore()
 
 const loading = ref(false)
 
@@ -153,14 +155,22 @@ const handleSubmit = async () => {
     appStore.setLoading(true)
     appStore.clearError()
     
+    // Check authentication
+    if (!authStore.isAuthenticated) {
+      appStore.setError('Please sign in to plan routes')
+      loading.value = false
+      appStore.setLoading(false)
+      return
+    }
+    
     // Sync form data to store
     syncToStore()
     
     // Create a natural language query from the form data
     const query = `Plan a hiking route from ${localOrigin.value || 'my location'} to ${localDestination.value || 'a hiking trail'}. ${localHome.value ? `My home is ${localHome.value}.` : ''} I prefer ${localPrefs.value.avoid.tolls ? 'avoiding tolls' : 'using tolls if needed'} and ${localPrefs.value.avoid.highways ? 'avoiding highways' : 'using highways if needed'}. ${localPrefs.value.accessibility ? 'The route should be wheelchair accessible.' : ''} Maximum detour: ${localContext.value.detourLimitMin} minutes.`
     
-    // Use the new planRoute method
-    const result = await appStore.planRoute(query)
+    // Use the new planRoute method with sessionToken
+    const result = await appStore.planRoute(query, authStore.sessionToken)
     
     console.log('Route planning result:', result)
     
